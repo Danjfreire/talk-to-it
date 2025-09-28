@@ -2,25 +2,28 @@ from audio_recorder.recorder import AudioRecorder
 from commands.help_command import HelpCommand
 from commands.exit_command import ExitCommand
 from commands.command_base import Command
+from commands.start_recording_command import StartRecordingCommand
+from commands.stop_recording_command import StopRecordingCommand 
 
 class ReplConfig:
-    def __init__(self, recorder=AudioRecorder):
+    def __init__(self, recorder:AudioRecorder):
         self.recorder = recorder
 
 class Repl:
-    def __init__(self, config=ReplConfig):
-        self._config = config
+    def __init__(self, config:ReplConfig):
+        self.config:ReplConfig = config
         self._state = {"is_recording": False, "should_exit": False}
         self.commands: dict[str, Command] = self._discover_commands()
 
     def _discover_commands(self):
-        help_cmd = HelpCommand()
-        exit_cmd = ExitCommand()
+        command_list:list[Command] = [
+            HelpCommand(),
+            ExitCommand(),
+            StartRecordingCommand(),
+            StopRecordingCommand()
+        ]
 
-        commands = {
-            help_cmd.name: help_cmd,
-            exit_cmd.name: exit_cmd
-        }
+        commands = dict((cmd.name, cmd) for cmd in command_list)
 
         return commands
     
