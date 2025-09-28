@@ -1,9 +1,10 @@
 import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
+from typing import Any
 
 class AudioRecorder:
-    def __init__(self,samplerate=44100, filename="output.wav"):
+    def __init__(self,samplerate=16000, filename="output.wav"):
         self.samplerate = samplerate
         self.filename = filename
         self._recording_data = []
@@ -20,7 +21,7 @@ class AudioRecorder:
         self._stream.start()
         print("Recording started...")
     
-    def stop(self):
+    def stop(self) -> str | None:
         if self._stream is None:
             print("No active recording to stop")
             return
@@ -37,4 +38,6 @@ class AudioRecorder:
         recording = np.concatenate(self._recording_data, axis=0)
         write(self.filename, self.samplerate, recording)
         print(f"Recording saved to {self.filename}")
+
+        return self.filename
 

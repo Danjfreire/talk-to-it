@@ -11,7 +11,10 @@ class StopRecordingCommand(Command):
 
     def execute(self, repl:"Repl"):
         if repl._state["is_recording"]:
-            repl.config.recorder.stop()
+            file_path = repl.config.recorder.stop()
             repl._state["is_recording"] = False
+            if file_path is None:
+                return
+            repl.config.transcriber.transcribe(file_path=file_path)
         else:
             print("system must be recording to stop recording")

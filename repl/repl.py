@@ -1,4 +1,5 @@
 from audio_recorder.recorder import AudioRecorder
+from transcriber.transcriber import Transcriber
 from commands.help_command import HelpCommand
 from commands.exit_command import ExitCommand
 from commands.command_base import Command
@@ -6,8 +7,9 @@ from commands.start_recording_command import StartRecordingCommand
 from commands.stop_recording_command import StopRecordingCommand 
 
 class ReplConfig:
-    def __init__(self, recorder:AudioRecorder):
+    def __init__(self, recorder:AudioRecorder, transcriber=Transcriber):
         self.recorder = recorder
+        self.transcriber = transcriber
 
 class Repl:
     def __init__(self, config:ReplConfig):
