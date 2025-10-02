@@ -17,7 +17,6 @@ class StopRecordingCommand(Command):
             if file_path is None:
                 return
             transcription = repl.config.transcriber.transcribe(file_path=file_path)
-            # repl.config.player.play(file_path)
             # TEST 
             messages = [
                 SystemMessage(content="" \
@@ -28,7 +27,8 @@ class StopRecordingCommand(Command):
             ]
 
             res = repl.config.llm_model.invoke(messages)
-            print(f"Ai: {res.content}")
-
+            ai_text = res.content
+            tts_output_path = repl.config.tts_client.tts(ai_text)
+            repl.config.player.play(tts_output_path)
         else:
             print("system must be recording to stop recording")
