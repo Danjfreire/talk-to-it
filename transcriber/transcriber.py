@@ -22,3 +22,4 @@ class Transcriber:
 
         print(f"Transcription took {end_time - start_time:.2f} seconds")
         print(transcription)
+        return transcription[0]

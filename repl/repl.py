@@ -6,9 +6,11 @@ from commands.exit_command import ExitCommand
 from commands.command_base import Command
 from commands.start_recording_command import StartRecordingCommand
 from commands.stop_recording_command import StopRecordingCommand 
+from langchain.chat_models.base import BaseChatModel
 
 class ReplConfig:
-    def __init__(self, recorder:AudioRecorder, player:AudioPlayer,transcriber=Transcriber):
+    def __init__(self, recorder:AudioRecorder, player:AudioPlayer,transcriber:Transcriber, llm_model:BaseChatModel):
+        self.llm_model = llm_model
         self.player = player
         self.recorder = recorder
         self.transcriber = transcriber
