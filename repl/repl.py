@@ -8,7 +8,9 @@ from commands.exit_command import ExitCommand
 from commands.command_base import Command
 from commands.start_recording_command import StartRecordingCommand
 from commands.stop_recording_command import StopRecordingCommand 
+from commands.prompt_command import PromptCommand
 from langchain.chat_models.base import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 class ReplConfig:
     def __init__(
@@ -38,7 +40,8 @@ class Repl:
             HelpCommand(),
             ExitCommand(),
             StartRecordingCommand(),
-            StopRecordingCommand()
+            StopRecordingCommand(),
+            PromptCommand()
         ]
 
         commands = dict((cmd.name, cmd) for cmd in command_list)
@@ -64,7 +67,14 @@ class Repl:
                 print("Exiting REPL...")
                 break
         
+    def handle_prompt(self, prompt:str):
+            messages = [
+                SystemMessage(content=f"{self.config.character.description}\n Your answers should not include any code block or markdown. Answer with sentences like a human would."),
+                HumanMessage(content=prompt)
+            ]
 
-
-    
-    
+            res = self.config.llm_model.invoke(messages)
+            ai_text = res.content
+            print(f"AI: {ai_text}")
+            tts_output_path = self.config.tts_client.tts(ai_text, audio_prompt_path=self.config.character.audio_sample_path)
+            self.config.player.play(tts_output_path)
