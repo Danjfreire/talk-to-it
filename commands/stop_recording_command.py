@@ -16,5 +16,6 @@ class StopRecordingCommand(Command):
             if file_path is None:
                 return
             repl.config.transcriber.transcribe(file_path=file_path)
+            repl.config.player.play(file_path)
         else:
             print("system must be recording to stop recording")
