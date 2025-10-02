@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from audio_recorder.recorder import AudioRecorder
+from characters.character import Character
 from audio_player.player import AudioPlayer
 from tts.tts_client import TTSClient
 from transcriber.transcriber import Transcriber
@@ -12,6 +13,16 @@ from chatterbox import ChatterboxTTS
 load_dotenv()
 
 def main():
+    arguments = os.sys.argv
+    character_name = None
+
+    if len(arguments) > 1:
+        character_name = arguments[1]
+    else:
+        character_name = "shadowheart"
+
+    character = Character(character_name=character_name)
+
     print("Initializing models...")
 
     if not os.environ.get("GOOGLE_API_KEY"):
@@ -28,7 +39,7 @@ def main():
     ttsClient = TTSClient(tts_model)
     player = AudioPlayer()
 
-    repl = Repl(ReplConfig(recorder=recorder, player=player,transcriber=transcriber, llm_model=llm_model, tts_client=ttsClient))
+    repl = Repl(ReplConfig(recorder=recorder, player=player,transcriber=transcriber, llm_model=llm_model, tts_client=ttsClient, character=character))
 
     repl.start()
 

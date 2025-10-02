@@ -1,6 +1,7 @@
 from audio_recorder.recorder import AudioRecorder
 from audio_player.player import AudioPlayer 
 from tts.tts_client import TTSClient
+from characters.character import Character
 from transcriber.transcriber import Transcriber
 from commands.help_command import HelpCommand
 from commands.exit_command import ExitCommand
@@ -10,12 +11,21 @@ from commands.stop_recording_command import StopRecordingCommand
 from langchain.chat_models.base import BaseChatModel
 
 class ReplConfig:
-    def __init__(self, recorder:AudioRecorder, player:AudioPlayer,transcriber:Transcriber, llm_model:BaseChatModel, tts_client: TTSClient ):
+    def __init__(
+            self, 
+            recorder:AudioRecorder,
+            player:AudioPlayer,
+            transcriber:Transcriber, 
+            llm_model:BaseChatModel, 
+            tts_client:TTSClient, 
+            character:Character
+            ):
         self.llm_model = llm_model
         self.player = player
         self.recorder = recorder
         self.transcriber = transcriber
         self.tts_client=tts_client 
+        self.character=character
 
 class Repl:
     def __init__(self, config:ReplConfig):

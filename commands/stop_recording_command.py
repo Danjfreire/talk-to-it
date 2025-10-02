@@ -19,16 +19,14 @@ class StopRecordingCommand(Command):
             transcription = repl.config.transcriber.transcribe(file_path=file_path)
             # TEST 
             messages = [
-                SystemMessage(content="" \
-                "You are an expert programmer. Talk to the user in a concise and clear manner as if you are in a conversation. " \
-                "Your answers should not include any code block or markdown. Answer with sentences like a human would." \
-                ""),
+                SystemMessage(content=f"{repl.config.character.description}\n Your answers should not include any code block or markdown. Answer with sentences like a human would."),
                 HumanMessage(content=transcription)
             ]
 
             res = repl.config.llm_model.invoke(messages)
             ai_text = res.content
-            tts_output_path = repl.config.tts_client.tts(ai_text)
+            print(f"AI: {ai_text}")
+            tts_output_path = repl.config.tts_client.tts(ai_text, audio_prompt_path=repl.config.character.audio_sample_path)
             repl.config.player.play(tts_output_path)
         else:
             print("system must be recording to stop recording")
