@@ -8,6 +8,7 @@ from commands.exit_command import ExitCommand
 from commands.command_base import Command
 from commands.start_recording_command import StartRecordingCommand
 from commands.stop_recording_command import StopRecordingCommand 
+from commands.repeat_command import ReapeatCommand
 from commands.prompt_command import PromptCommand
 from langchain.chat_models.base import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -41,7 +42,8 @@ class Repl:
             ExitCommand(),
             StartRecordingCommand(),
             StopRecordingCommand(),
-            PromptCommand()
+            PromptCommand(),
+            ReapeatCommand()
         ]
 
         commands = dict((cmd.name, cmd) for cmd in command_list)
