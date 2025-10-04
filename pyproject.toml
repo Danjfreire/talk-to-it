@@ -14,5 +14,7 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "scipy>=1.16.2",
     "sounddevice>=0.5.2",
+    "textual[syntax]>=6.2.1",
+    "textual-dev>=1.7.0",
     "transformers[torch]>=4.46.3",
 ]

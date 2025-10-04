@@ -1,0 +1,3 @@
+LoadingIndicator {
+    height: 15;
+}
