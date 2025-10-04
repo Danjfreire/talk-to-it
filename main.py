@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from textual.app import App
-from textual.widgets import Header, Footer, LoadingIndicator, Static
+from textual.widgets import Header, Footer, LoadingIndicator, Static, Input
 from textual.containers import Vertical
 
 class TalkToItApp(App):
@@ -13,18 +13,21 @@ class TalkToItApp(App):
         ("q", "quit", "Quit"),
         ("p", "prompt", "Prompt"),
         ("r", "record", "Record"),
+        ("escape", "hide_input", "Hide Input")
     ]
 
     def __init__(self):
         super().__init__()
         self.repl = None
         self.models_loaded = False
+        self.input_visible = False
 
     def compose(self):
         yield Header()
         with Vertical():
             yield LoadingIndicator(id="loading")
             yield Static("Starting up...", id="status")
+            yield Input(placeholder="Enter a prompt", id="prompt-input", disabled=True)
         yield Footer()
     
     async def on_mount(self):
@@ -37,7 +40,6 @@ class TalkToItApp(App):
             loading = self.query_one("#loading", LoadingIndicator)
             status = self.query_one("#status", Static)
 
-            status.update("App mounted! UI is working.")
             await asyncio.sleep(1)
             
             status.update("Loading dependencies...")
@@ -68,6 +70,44 @@ class TalkToItApp(App):
             return
         print("Prompt action triggered")
 
+        input_field = self.query_one("#prompt-input", Input)
+
+        if self.input_visible:
+            self._set_prompt_visible(False)
+        else:
+            self._set_prompt_visible(True)
+
+    def action_hide_input(self):
+        if self.input_visible:
+            self._set_prompt_visible(False)
+    
+    async def on_input_submitted(self, event: Input.Submitted):
+        if not self.models_loaded:
+            self.bell()
+            return
+        
+        prompt = event.value
+        if prompt.strip():
+            event.input.value = ""
+
+            self._set_prompt_visible(False)
+
+            asyncio.create_task(self._handle_prompt(prompt))
+
+
+    def _set_prompt_visible(self, visible:bool):
+        input_field = self.query_one("#prompt-input", Input)
+        if visible:
+            input_field.disabled = False
+            input_field.add_class("visible")
+            input_field.focus()
+            self.input_visible = True
+        else:
+            input_field.disabled = True
+            input_field.remove_class("visible")
+            self.input_visible = False
+
+
     def action_record(self):
         print("Record action triggered")
         if not self.models_loaded:
@@ -76,8 +116,18 @@ class TalkToItApp(App):
         
         asyncio.create_task(self._handle_recording())
         
+    async def _handle_prompt(self, prompt: str):
+        try:
+            status = self.query_one("#status", Static)
+            status.update("Processing prompt...")
+            await self.repl.handle_prompt(prompt)
+            status.update("Ready! Press 'r' to record or 'p' for prompt")
+        except Exception as e:
+            status = self.query_one("#status", Static)
+            status.update(f"Error during prompt handling: {e}")
         
     async def _handle_recording(self):
+        
         try:
             if not self.repl._state["is_recording"]:
                 await self.repl.handle_command("record")

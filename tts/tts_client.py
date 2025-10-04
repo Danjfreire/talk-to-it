@@ -1,5 +1,6 @@
 from chatterbox import ChatterboxTTS
 import torchaudio as ta
+import time
 
 class TTSClient:
     def __init__(self, model:ChatterboxTTS, output_path:str="outputs/tts-output.wav"):
@@ -7,8 +8,11 @@ class TTSClient:
         self.output_path = output_path
     
     def tts(self,text:str, audio_prompt_path: str ) -> str:
+        start_time = time.perf_counter()
         wav = self.model.generate(text,audio_prompt_path=audio_prompt_path)
         ta.save(self.output_path, wav, self.model.sr)
+        end_time = time.perf_counter()
+        print(f"TTS generation took {end_time - start_time:.2f} seconds")
         return self.output_path
     
 

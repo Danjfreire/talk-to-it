@@ -57,25 +57,6 @@ class Repl:
             await command.execute(self)
         else:
             print(f'unknown command : {command_name}, type "help" for a list of commands')
-
-    def start(self):
-        while True:
-            user_input = input(">> ").strip().lower()
-
-            if not user_input:
-                continue
-
-            command_name = user_input.split()[0]
-
-            if command_name in self.commands:
-                command = self.commands[command_name]
-                command.execute(self)
-            else:
-                print(f'unknown command : {command_name}, type "help" for a list of commands')
-
-            if self._state["should_exit"]:
-                print("Exiting REPL...")
-                break
         
     async def handle_prompt(self, prompt:str):
             loop = asyncio.get_event_loop()
