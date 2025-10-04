@@ -18,6 +18,6 @@ class Command(ABC):
         pass
 
     @abstractmethod
-    def execute(self, repl="Repl"):
+    async def execute(self, repl="Repl"):
         pass
     

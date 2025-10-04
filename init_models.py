@@ -17,6 +17,8 @@ async def init():
     from transcriber.transcriber import Transcriber
     from repl.repl import Repl, ReplConfig
     from langchain.chat_models import init_chat_model
+    from chatterbox import ChatterboxTTS
+    from transformers import WhisperProcessor, WhisperForConditionalGeneration
     
     arguments = os.sys.argv
     character_name = "shadowheart" if len(arguments) <= 1 else arguments[1]
@@ -31,14 +33,18 @@ async def init():
         
         print("Loading LLM model...")
         llm_model = init_chat_model("gemini-2.5-flash", model_provider="google-genai")
+        tts_model = ChatterboxTTS.from_pretrained(device="cuda")
+        processor = WhisperProcessor.from_pretrained("openai/whisper-base")
+        speech_rec_model= WhisperForConditionalGeneration.from_pretrained("openai/whisper-base")
+        speech_rec_model.config.forced_decoder_ids = None
         
         print("Models loaded successfully!")
         return {
             'character': character,
             'llm_model': llm_model,
-            'tts_model': None,
-            'processor': None,
-            'speech_rec_model': None
+            'tts_model': tts_model,
+            'processor': processor,
+            'speech_rec_model': speech_rec_model 
         }
     
     # Run the blocking model loading in a thread pool

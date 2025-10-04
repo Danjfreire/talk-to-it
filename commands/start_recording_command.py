@@ -9,6 +9,6 @@ class StartRecordingCommand(Command):
     name="record"
     description="Starts recording audio input"
 
-    def execute(self, repl:"Repl"):
+    async def execute(self, repl:"Repl"):
         repl.config.recorder.record()
         repl._state["is_recording"] = True

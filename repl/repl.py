@@ -1,3 +1,4 @@
+import asyncio
 from audio_recorder.recorder import AudioRecorder
 from audio_player.player import AudioPlayer 
 from tts.tts_client import TTSClient
@@ -49,7 +50,14 @@ class Repl:
         commands = dict((cmd.name, cmd) for cmd in command_list)
 
         return commands
-    
+
+    async def handle_command(self, command_name:str):
+        if command_name in self.commands:
+            command = self.commands[command_name]
+            await command.execute(self)
+        else:
+            print(f'unknown command : {command_name}, type "help" for a list of commands')
+
     def start(self):
         while True:
             user_input = input(">> ").strip().lower()
@@ -69,14 +77,26 @@ class Repl:
                 print("Exiting REPL...")
                 break
         
-    def handle_prompt(self, prompt:str):
+    async def handle_prompt(self, prompt:str):
+            loop = asyncio.get_event_loop()
+
             messages = [
                 SystemMessage(content=f"{self.config.character.description}\n Your answers should not include any code block or markdown. Answer with sentences like a human would."),
                 HumanMessage(content=prompt)
             ]
 
-            res = self.config.llm_model.invoke(messages)
+            res = await loop.run_in_executor(
+                None,
+                lambda: self.config.llm_model.invoke(messages)
+            ) 
             ai_text = res.content
             print(f"AI: {ai_text}")
-            tts_output_path = self.config.tts_client.tts(ai_text, audio_prompt_path=self.config.character.audio_sample_path)
-            self.config.player.play(tts_output_path)
+            tts_output_path = await loop.run_in_executor(
+                None,
+                lambda: self.config.tts_client.tts(ai_text, audio_prompt_path=self.config.character.audio_sample_path)
+            )
+
+            await loop.run_in_executor(
+                None,
+                lambda: self.config.player.play(tts_output_path)
+            )

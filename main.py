@@ -34,7 +34,7 @@ class TalkToItApp(App):
     async def _initialize_models(self):
         """Background task for model initialization"""
         try:
-            # loading = self.query_one("#loading", LoadingIndicator)
+            loading = self.query_one("#loading", LoadingIndicator)
             status = self.query_one("#status", Static)
 
             status.update("App mounted! UI is working.")
@@ -69,10 +69,24 @@ class TalkToItApp(App):
         print("Prompt action triggered")
 
     def action_record(self):
+        print("Record action triggered")
         if not self.models_loaded:
             self.bell()
             return
-        print("Record action triggered")
+        
+        asyncio.create_task(self._handle_recording())
+        
+        
+    async def _handle_recording(self):
+        try:
+            if not self.repl._state["is_recording"]:
+                await self.repl.handle_command("record")
+            else:
+                await self.repl.handle_command("stop")
+        except Exception as e:
+            status = self.query_one("#status", Static)
+            status.update(f"Error during recording: {e}")
+
 
     def action_quit(self):
         self.exit()
