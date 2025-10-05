@@ -20,6 +20,7 @@ async def init():
     from chatterbox import ChatterboxTTS
     from transformers import WhisperProcessor, WhisperForConditionalGeneration
     
+    # TODO: Move character config somewhere else
     arguments = os.sys.argv
     character_name = "shadowheart" if len(arguments) <= 1 else arguments[1]
     
@@ -47,23 +48,30 @@ async def init():
             'speech_rec_model': speech_rec_model 
         }
     
-    # Run the blocking model loading in a thread pool
     loop = asyncio.get_event_loop()
     models = await loop.run_in_executor(None, _load_models_sync)
     
-    # Create the components
     transcriber = Transcriber(model=models['speech_rec_model'], processor=models['processor'])
     recorder = AudioRecorder(samplerate=44100, filename="outputs/output.wav")
     tts_client = TTSClient(models['tts_model'])
     player = AudioPlayer()
 
-    repl = Repl(ReplConfig(
-        recorder=recorder, 
-        player=player,
-        transcriber=transcriber, 
-        llm_model=models['llm_model'], 
-        tts_client=tts_client, 
-        character=models['character']
-    ))
+    # repl = Repl(ReplConfig(
+    #     recorder=recorder, 
+    #     player=player,
+    #     transcriber=transcriber, 
+    #     llm_model=models['llm_model'], 
+    #     tts_client=tts_client, 
+    #     character=models['character']
+    # ))
 
-    return repl
+    models_dict = {
+        "transcriber": transcriber,
+        "recorder": recorder,
+        "tts_client": tts_client,
+        "player": player,
+        "llm_model": models['llm_model'],
+        "character": models['character']
+    }
+
+    return models_dict
