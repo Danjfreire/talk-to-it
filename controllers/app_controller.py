@@ -36,6 +36,9 @@ class AppController:
         transcription = await self.audio_service.stop_recording()
         return transcription
     
-    async def play_response(self, text: str):
+    async def generate_audio_response(self, text: str):
         response_path = await self.tts_client.tts(text, self.conversation_service.character.audio_sample_path)
+        return response_path
+    
+    async def play_response(self, response_path: str):
         await self.audio_service.play_audio(response_path)

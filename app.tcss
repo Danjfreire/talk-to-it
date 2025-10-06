@@ -2,6 +2,41 @@ LoadingIndicator {
     height: 15;
 }
 
+ChatWindow {
+    border: round $accent;
+    height: 90%;
+    margin: 1 2;
+    padding: 2;
+    background: $boost;
+    overflow: auto;
+}
+
+ChatWindow:disabled {
+    display: none;
+}
+
+ChatWindow Horizontal {
+    width: 100%;
+    height: auto;
+}
+
+.message {
+    width: auto;
+    max-width: 70%;
+}
+
+.user-message {
+    align: right top;
+    color: white;
+    border: round white;
+}
+
+.ai-message {
+    align: left top;
+    color: teal;
+    border: round teal;
+}
+
 #prompt-input {
     border: round $accent;
     height: 3;
