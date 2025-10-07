@@ -2,36 +2,48 @@ import asyncio
 import time
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chat_models.base import BaseChatModel
+from langgraph.checkpoint.memory import InMemorySaver
+from langchain.agents import create_agent
 from characters.character import Character
+
+from dataclasses import dataclass
+
+@dataclass
+class ResponseFormat:
+    """Response schema for the agent."""
+    response: str
 
 class ConversationService:
     def __init__(self, llm_model: BaseChatModel, character: Character):
         self.llm_model = llm_model
         self.character = character
-    
-    async def handle_prompt(self, prompt: str) -> str:
-        # TODO: Add conversation history
-        start_time = time.perf_counter()
-        loop = asyncio.get_event_loop()
 
-        character_desc = f""" 
+        system_prompt = f""" 
             Act as the following character:
             {self.character.description}
             You should try to respond the questions, but stay in character.
             Your answers should not include any code block or markdown. Answer with sentences like a human would and use up to 1000 characters.
         """
 
-        messages = [
-            SystemMessage(content=character_desc),
-            HumanMessage(content=prompt)
-        ]
+        # TODO: Maybe move this somewhere else and inject it into the service
+        self._agent = create_agent(
+            model=llm_model,
+            checkpointer=InMemorySaver(),
+            system_prompt=system_prompt,
+            response_format=ResponseFormat
+        )
+        self._config = {"configurable": {"thread_id" : 1}}
+    
+    async def handle_prompt(self, prompt: str) -> str:
+        start_time = time.perf_counter()
+        loop = asyncio.get_event_loop()
 
         res = await loop.run_in_executor(
             None,
-            lambda: self.llm_model.invoke(messages)
+            lambda: self._agent.invoke({"messages": [{"role": "user", "content": prompt}]}, config=self._config)
         ) 
 
-        ai_text = res.content
+        ai_text = res['structured_response'].response
         end_time = time.perf_counter()
         print(f"AI response: {ai_text}")
         print(f"LLM response generation took {end_time - start_time:.2f} seconds")

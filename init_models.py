@@ -33,7 +33,7 @@ async def init(status_callback: callable) -> dict:
         
         status_callback("Loading LLM model...")
 
-        llm_model = init_chat_model("gemini-2.5-flash", model_provider="google-genai")
+        llm_model = init_chat_model("google_genai:gemini-2.5-flash", temperature=0.5)
 
         status_callback("Loading TTS model...")
         tts_model = ChatterboxTTS.from_pretrained(device="cuda")

@@ -7,7 +7,6 @@ requires-python = ">=3.13"
 dependencies = [
     "chatterbox-tts==0.1.2",
     "datasets[audio]==3.6.0",
-    "langchain[google-genai]>=0.3.27",
     "librosa>=0.11.0",
     "numpy>=2.3.3",
     "pydub>=0.25.1",
@@ -17,4 +16,5 @@ dependencies = [
     "textual[syntax]>=6.2.1",
     "textual-dev>=1.7.0",
     "transformers[torch]>=4.46.3",
+    "langchain[google-genai]>=1.0.0a12",
 ]
