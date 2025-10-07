@@ -15,7 +15,7 @@ class AppController:
         self.tts_client = tts_client
     
     async def handle_text_prompt(self, prompt: str):
-        ai_text = await self.conversation_service.process_prompt(prompt)
+        ai_text = await self.conversation_service.handle_prompt(prompt)
         return ai_text
     
     def is_recording(self) -> bool: 

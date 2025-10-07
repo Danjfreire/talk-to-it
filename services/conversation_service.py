@@ -9,7 +9,7 @@ class ConversationService:
         self.llm_model = llm_model
         self.character = character
     
-    async def process_prompt(self, prompt: str) -> str:
+    async def handle_prompt(self, prompt: str) -> str:
         # TODO: Add conversation history
         start_time = time.perf_counter()
         loop = asyncio.get_event_loop()

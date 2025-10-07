@@ -9,6 +9,7 @@ from textual.containers import Vertical, VerticalScroll, Right, Horizontal
 from services.conversation_service import ConversationService
 from services.audio_sevice import AudioService
 from controllers.app_controller import AppController
+from tts.tts_client import TTSClient
 
 class AiTypingIndicator(Horizontal):
     def __init__(self, character_name: str):
@@ -69,7 +70,9 @@ class TalkToItApp(App):
         self.repl = None
         self.models_loaded = False
         self.input_visible = False
-        self.controller: AppController = None
+        self.audio_service: AudioService = None
+        self.conversation_service: ConversationService = None
+        self.tts_client: TTSClient = None
         self.chat_window: ChatWindow = None
 
     def compose(self):
@@ -102,10 +105,12 @@ class TalkToItApp(App):
             await asyncio.sleep(0.5)
 
             models = await init(status_callback=self.set_loading_status)
+            self.conversation_service = ConversationService(llm_model=models['llm_model'], character= models['character'])
+            self.audio_service = AudioService(recorder=models['recorder'], transcriber=models['transcriber'], player=models['player'])
+            self.tts_client = models['tts_client']
             self.models_loaded = True 
-            conversation_service = ConversationService(llm_model=models['llm_model'], character= models['character'])
-            audio_service = AudioService(recorder=models['recorder'], transcriber=models['transcriber'], player=models['player'])
-            self.controller = AppController(audio_service=audio_service, conversation_service=conversation_service, tts_client=models['tts_client'])
+            
+            # self.controller = AppController(audio_service=audio_service, conversation_service=conversation_service, tts_client=models['tts_client'])
 
             loading.display = False
             status.display = False
@@ -143,12 +148,12 @@ class TalkToItApp(App):
             self.bell()
             return
 
-        is_recording = self.controller.is_recording()
+        is_recording = self.audio_service.is_recording
 
         if not is_recording:
-            await self.controller.start_recording()
+            await self.audio_service.start_recording()
         else:
-            transcription = await self.controller.stop_recording()
+            transcription = await self.audio_service.stop_recording()
             print(f"Transcription: {transcription}")
             self.chat_window.append_message(transcription, "user")
 
@@ -188,19 +193,22 @@ class TalkToItApp(App):
 # INTERNAL LOGIC
         
     async def _handle_prompt(self, prompt: str):
-        typing_indicator = AiTypingIndicator(self.controller.get_character_name())
+        typing_indicator = AiTypingIndicator(self.conversation_service.character.name)
         self.chat_window.mount(typing_indicator)
 
-        ai_text = await self.controller.handle_text_prompt(prompt)
-        audio_response = await self.controller.generate_audio_response(ai_text)
+        ai_text = await self.conversation_service.handle_prompt(prompt)
+        audio_response = await self.tts_client.tts(ai_text, self.conversation_service.character.audio_sample_path)
         typing_indicator.remove()
 
         self.chat_window.append_message(ai_text, "ai")
-        await self.controller.play_response(audio_response)
+        await self.audio_service.play_audio(audio_response)
+
+#-----------------------------------------------------------------------------------------------------------------------
+# UTILITY METHODS
 
     def set_loading_status(self, message: str):
         status = self.query_one("#status", Static)
-        status.update(message)
+        status.update(f">> {message}")
 
 if __name__ == "__main__":
     app = TalkToItApp()
