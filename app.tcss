@@ -9,11 +9,13 @@ ChatWindow {
     padding: 2;
     background: $boost;
     overflow: auto;
-}
-
-ChatWindow:disabled {
     display: none;
 }
+
+ChatWindow.visible {
+    display: block;
+}
+
 
 ChatWindow Horizontal {
     width: 100%;

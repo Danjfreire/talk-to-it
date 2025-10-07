@@ -110,6 +110,7 @@ class TalkToItApp(App):
 
             loading.display = False
             chat_window.disabled = False
+            chat_window.add_class("visible")
             self.chat_window = chat_window
         except Exception as e:
             loading = self.query_one("#loading", LoadingIndicator)
