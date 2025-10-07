@@ -5,38 +5,45 @@ load_dotenv()
 
 from textual.app import App
 from textual.widgets import Header, Footer, LoadingIndicator, Static, Input
-from textual.containers import Vertical, VerticalScroll, Horizontal, Right
+from textual.containers import Vertical, VerticalScroll, Right, Horizontal
 from services.conversation_service import ConversationService
 from services.audio_sevice import AudioService
 from controllers.app_controller import AppController
 
-class ChatMessage(Horizontal):
-    def __init__(self, message: str, speaker: str = "user"):
+class AiTypingIndicator(Horizontal):
+    def __init__(self, character_name: str):
+        self.character_name = character_name
+        self._animation_task = None
         super().__init__()
-        self.message = message
-        self.speaker = speaker
 
-    def on_mount(self) -> None:
-        print(f"Mounting message: {self.message} from {self.speaker}")
-        msg = Static(f"{self.message}")
-        msg.add_class("message")
-
-        if self.speaker == "user":
-            msg.add_class("user-message")
-        else:
-            msg.add_class("ai-message")
-        self.mount()
-
+    def compose(self):
+        yield Static(id="typing-text")
+    
+    def on_mount(self):
+        self._animation_task = asyncio.create_task(self._animate_dots())
+    
+    def on_unmount(self):
+        if self._animation_task:
+            self._animation_task.cancel()
+    
+    async def _animate_dots(self):
+        typing_indicator = self.query_one("#typing-text", Static)
+        dots_states = [".", "..", "...", ""]
+        index = 0
+        
+        try:
+            while True:
+                typing_indicator.update(f"{self.character_name} is typing{dots_states[index]}")
+                index = (index + 1) % len(dots_states)
+                await asyncio.sleep(0.5) 
+        except asyncio.CancelledError:
+            pass 
+    
+   
 
 class ChatWindow(VerticalScroll):
     def append_message(self, message: str, speaker: str):
-        # container = Horizontal()
-        # container.styles.width = "100%"
-        # container.styles.height = "auto"
-        # self.mount(container)
-        
         msg = Static(f"{message}")
-    
         msg.add_class("message")
 
         if speaker == "user":
@@ -46,6 +53,7 @@ class ChatWindow(VerticalScroll):
             msg.add_class("ai-message")
             self.mount(msg)
         
+        self.scroll_end(animate=False)
         
 
 class TalkToItApp(App):
@@ -160,19 +168,23 @@ class TalkToItApp(App):
         is_recording = self.controller.is_recording()
 
         if not is_recording:
-            # asyncio.create_task(self.controller.start_recording())
             await self.controller.start_recording()
         else:
             transcription = await self.controller.stop_recording()
-            # transcription = await result
             print(f"Transcription: {transcription}")
+            self.chat_window.append_message(transcription, "user")
 
             if transcription:
                 await self._handle_prompt(transcription)
         
     async def _handle_prompt(self, prompt: str):
+        typing_indicator = AiTypingIndicator(self.controller.get_character_name())
+        self.chat_window.mount(typing_indicator)
+
         ai_text = await self.controller.handle_text_prompt(prompt)
         audio_response = await self.controller.generate_audio_response(ai_text)
+        typing_indicator.remove()
+
         self.chat_window.append_message(ai_text, "ai")
         await self.controller.play_response(audio_response)
 

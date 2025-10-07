@@ -20,6 +20,22 @@ ChatWindow Horizontal {
     height: auto;
 }
 
+AiTypingIndicator {
+    height: auto;
+    width: auto;
+    padding: 1 2;
+    margin-bottom: 1;
+}
+
+AiTypingIndicator #typing-text {
+    color: $text-muted;
+}
+
+AiTypingIndicator #typing-dots {
+    color: $accent;
+    width: 4;
+}
+
 .message {
     width: auto;
     max-width: 70%;

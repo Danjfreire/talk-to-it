@@ -20,6 +20,9 @@ class AppController:
     
     def is_recording(self) -> bool: 
         return self.audio_service.is_recording
+    
+    def get_character_name(self) -> str:
+        return self.conversation_service.character.name
 
     async def start_recording(self):
         if self.audio_service.is_recording:

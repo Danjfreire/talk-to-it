@@ -4,7 +4,8 @@ class Character:
     def __init__(self, config_directory: str = "characters/config", character_name: str = "shadowheart"):
         self.config_path = config_directory 
         self.audio_sample_path = None
-        self.description = None
+        self.description: str = None
+        self.name: str = None
         self.__set_character(character_name=character_name)
     
     def __set_character(self, character_name: str):
@@ -27,6 +28,8 @@ class Character:
         with open(text_config_path, "r") as f:
             self.description = f.read()
         print("character description loaded!")
+        self.name = character_name
+
 
 
 
