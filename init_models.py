@@ -3,11 +3,12 @@ import asyncio
 from functools import partial
 
 
-async def init():
+async def init(status_callback: callable = None) -> dict:
     """Initialize the repl with lazy imports to avoid blocking the UI"""
     
     # Move all heavy imports here so they don't block app startup
-    print("Importing dependencies...")
+    if status_callback:
+        status_callback("Importing dependencies...")
     
     # These imports might be heavy and block the UI
     from audio_recorder.recorder import AudioRecorder
@@ -32,14 +33,26 @@ async def init():
         if not os.environ.get("GOOGLE_API_KEY"):
             raise ValueError("GOOGLE_API_KEY not set")
         
-        print("Loading LLM model...")
+        if status_callback:
+            status_callback("Loading LLM model...")
+
         llm_model = init_chat_model("gemini-2.5-flash", model_provider="google-genai")
+
+        if status_callback:
+            status_callback("Loading TTS model...")
         tts_model = ChatterboxTTS.from_pretrained(device="cuda")
+
+
+        if status_callback:
+            status_callback("Loading Speech Recognition model...")
+
         processor = WhisperProcessor.from_pretrained("openai/whisper-base")
         speech_rec_model= WhisperForConditionalGeneration.from_pretrained("openai/whisper-base")
         speech_rec_model.config.forced_decoder_ids = None
         
-        print("Models loaded successfully!")
+        if status_callback:
+            status_callback("Models loaded successfully!")
+
         return {
             'character': character,
             'llm_model': llm_model,
@@ -55,15 +68,6 @@ async def init():
     recorder = AudioRecorder(samplerate=44100, filename="outputs/output.wav")
     tts_client = TTSClient(models['tts_model'])
     player = AudioPlayer()
-
-    # repl = Repl(ReplConfig(
-    #     recorder=recorder, 
-    #     player=player,
-    #     transcriber=transcriber, 
-    #     llm_model=models['llm_model'], 
-    #     tts_client=tts_client, 
-    #     character=models['character']
-    # ))
 
     models_dict = {
         "transcriber": transcriber,

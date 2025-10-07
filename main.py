@@ -39,7 +39,6 @@ class AiTypingIndicator(Horizontal):
         except asyncio.CancelledError:
             pass 
     
-   
 
 class ChatWindow(VerticalScroll):
     def append_message(self, message: str, speaker: str):
@@ -102,13 +101,14 @@ class TalkToItApp(App):
             status.update("Initializing models (this may take a few minutes)...")
             await asyncio.sleep(0.5)
 
-            models = await init()
+            models = await init(status_callback=self.set_loading_status)
             self.models_loaded = True 
             conversation_service = ConversationService(llm_model=models['llm_model'], character= models['character'])
             audio_service = AudioService(recorder=models['recorder'], transcriber=models['transcriber'], player=models['player'])
             self.controller = AppController(audio_service=audio_service, conversation_service=conversation_service, tts_client=models['tts_client'])
 
             loading.display = False
+            status.display = False
             chat_window.disabled = False
             chat_window.add_class("visible")
             self.chat_window = chat_window
@@ -118,6 +118,9 @@ class TalkToItApp(App):
             loading.display = False
             status.update(f"Error: {e}")
             print(f"Full error: {e}")
+
+# ---------------------------------------------------------------------------------------------------------------------- 
+# ACTION HANDLERS
 
     def action_prompt(self):
         if not self.models_loaded:
@@ -134,32 +137,6 @@ class TalkToItApp(App):
         if self.input_visible:
             self._set_input_visibility(False)
     
-    async def on_input_submitted(self, event: Input.Submitted):
-        if not self.models_loaded:
-            self.bell()
-            return
-        
-        prompt = event.value
-        if prompt.strip():
-            event.input.value = ""
-            self.chat_window.append_message(prompt, "user")
-            self._set_input_visibility(False)
-            await self._handle_prompt(prompt)
-
-
-    def _set_input_visibility(self, visible:bool):
-        input_field = self.query_one("#prompt-input", Input)
-        if visible:
-            input_field.disabled = False
-            input_field.add_class("visible")
-            input_field.focus()
-            self.input_visible = True
-        else:
-            input_field.disabled = True
-            input_field.remove_class("visible")
-            self.input_visible = False
-
-
     async def action_record(self):
         print("Record action triggered")
         if not self.models_loaded:
@@ -177,6 +154,38 @@ class TalkToItApp(App):
 
             if transcription:
                 await self._handle_prompt(transcription)
+
+    def action_quit(self):
+        self.exit()
+# ----------------------------------------------------------------------------------------------------------------------
+# EVENT HANDLERS
+
+    async def on_input_submitted(self, event: Input.Submitted):
+        if not self.models_loaded:
+            self.bell()
+            return
+        
+        prompt = event.value
+        if prompt.strip():
+            event.input.value = ""
+            self.chat_window.append_message(prompt, "user")
+            self._set_input_visibility(False)
+            await self._handle_prompt(prompt)
+
+    def _set_input_visibility(self, visible:bool):
+        input_field = self.query_one("#prompt-input", Input)
+        if visible:
+            input_field.disabled = False
+            input_field.add_class("visible")
+            input_field.focus()
+            self.input_visible = True
+        else:
+            input_field.disabled = True
+            input_field.remove_class("visible")
+            self.input_visible = False
+
+# ----------------------------------------------------------------------------------------------------------------------
+# INTERNAL LOGIC
         
     async def _handle_prompt(self, prompt: str):
         typing_indicator = AiTypingIndicator(self.controller.get_character_name())
@@ -189,8 +198,9 @@ class TalkToItApp(App):
         self.chat_window.append_message(ai_text, "ai")
         await self.controller.play_response(audio_response)
 
-    def action_quit(self):
-        self.exit()
+    def set_loading_status(self, message: str):
+        status = self.query_one("#status", Static)
+        status.update(message)
 
 if __name__ == "__main__":
     app = TalkToItApp()
