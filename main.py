@@ -8,7 +8,6 @@ from textual.widgets import Header, Footer, LoadingIndicator, Static, Input
 from textual.containers import Vertical, VerticalScroll, Right, Horizontal
 from services.conversation_service import ConversationService
 from services.audio_sevice import AudioService
-from controllers.app_controller import AppController
 from tts.tts_client import TTSClient
 
 class AiTypingIndicator(Horizontal):
@@ -109,8 +108,6 @@ class TalkToItApp(App):
             self.audio_service = AudioService(recorder=models['recorder'], transcriber=models['transcriber'], player=models['player'])
             self.tts_client = models['tts_client']
             self.models_loaded = True 
-            
-            # self.controller = AppController(audio_service=audio_service, conversation_service=conversation_service, tts_client=models['tts_client'])
 
             loading.display = False
             status.display = False

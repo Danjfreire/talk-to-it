@@ -3,12 +3,11 @@ import asyncio
 from functools import partial
 
 
-async def init(status_callback: callable = None) -> dict:
+async def init(status_callback: callable) -> dict:
     """Initialize the repl with lazy imports to avoid blocking the UI"""
     
     # Move all heavy imports here so they don't block app startup
-    if status_callback:
-        status_callback("Importing dependencies...")
+    status_callback("Importing dependencies...")
     
     # These imports might be heavy and block the UI
     from audio_recorder.recorder import AudioRecorder
@@ -16,7 +15,6 @@ async def init(status_callback: callable = None) -> dict:
     from audio_player.player import AudioPlayer
     from tts.tts_client import TTSClient
     from transcriber.transcriber import Transcriber
-    from repl.repl import Repl, ReplConfig
     from langchain.chat_models import init_chat_model
     from chatterbox import ChatterboxTTS
     from transformers import WhisperProcessor, WhisperForConditionalGeneration
@@ -33,25 +31,20 @@ async def init(status_callback: callable = None) -> dict:
         if not os.environ.get("GOOGLE_API_KEY"):
             raise ValueError("GOOGLE_API_KEY not set")
         
-        if status_callback:
-            status_callback("Loading LLM model...")
+        status_callback("Loading LLM model...")
 
         llm_model = init_chat_model("gemini-2.5-flash", model_provider="google-genai")
 
-        if status_callback:
-            status_callback("Loading TTS model...")
+        status_callback("Loading TTS model...")
         tts_model = ChatterboxTTS.from_pretrained(device="cuda")
 
-
-        if status_callback:
-            status_callback("Loading Speech Recognition model...")
+        status_callback("Loading Speech Recognition model...")
 
         processor = WhisperProcessor.from_pretrained("openai/whisper-base")
         speech_rec_model= WhisperForConditionalGeneration.from_pretrained("openai/whisper-base")
         speech_rec_model.config.forced_decoder_ids = None
         
-        if status_callback:
-            status_callback("Models loaded successfully!")
+        status_callback("Models loaded successfully!")
 
         return {
             'character': character,

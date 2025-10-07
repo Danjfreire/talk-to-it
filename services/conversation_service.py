@@ -14,8 +14,15 @@ class ConversationService:
         start_time = time.perf_counter()
         loop = asyncio.get_event_loop()
 
+        character_desc = f""" 
+            Act as the following character:
+            {self.character.description}
+            You should try to respond the questions, but stay in character.
+            Your answers should not include any code block or markdown. Answer with sentences like a human would and use up to 1000 characters.
+        """
+
         messages = [
-            SystemMessage(content=f"{self.character.description}\n Your answers should not include any code block or markdown. Answer with sentences like a human would."),
+            SystemMessage(content=character_desc),
             HumanMessage(content=prompt)
         ]
 
