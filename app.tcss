@@ -1,83 +1,127 @@
-LoadingIndicator {
-    height: 15;
+/* App-wide styling */
+Screen {
+    background: $surface;
 }
 
+LoadingIndicator {
+    height: 15;
+    color: $accent;
+}
+
+#status {
+    color: $text-muted;
+    text-align: center;
+    padding: 1;
+}
+
+/* Chat Window */
 ChatWindow {
-    border: round $accent;
+    border: round $primary;
     height: 90%;
     margin: 1 2;
     padding: 2;
-    background: $boost;
     overflow: auto;
     display: none;
+    border-title-color: $accent;
+    scrollbar-color: $primary;
+    scrollbar-color-hover: $primary-lighten-2;
 }
 
 ChatWindow.visible {
     display: block;
 }
 
-
 ChatWindow Horizontal {
     width: 100%;
     height: auto;
+    margin-bottom: 1;
 }
 
+/* Messages */
+.message {
+    width: auto;
+    max-width: 65%;
+}
+
+.user-message {
+    color: $text;
+    border: round $primary-lighten-1;
+    text-style: none;
+}
+
+.ai-message {
+    color: $text;
+    border: round #6A057F;
+    text-style: none;
+}
+
+/* Typing Indicator */
 AiTypingIndicator {
     height: auto;
     width: auto;
-    padding: 1 2;
     margin-bottom: 1;
 }
 
 AiTypingIndicator #typing-text {
     color: $text-muted;
+    text-style: italic;
 }
 
 AiTypingIndicator #typing-dots {
     color: $accent;
     width: 4;
+    text-style: bold;
 }
 
+/* Recording Indicator */
 RecordingIndicator {
     width: 100%;
     padding: 1 2;
+    background: $error-darken-2;
+    border: round $error;
+    margin: 0 2;
 }
 
 RecordingIndicator #recording-text {
     width: auto;
     text-style: bold;
+    color: $error-lighten-3;
 }
 
 RecordingIndicator #recording-dot {
     width: 2;
-    color: red;
+    color: $error-lighten-2;
     text-style: bold;
 }
 
-.message {
-    width: auto;
-    max-width: 70%;
-}
-
-.user-message {
-    align: right top;
-    color: white;
-    border: round white;
-}
-
-.ai-message {
-    align: left top;
-    color: teal;
-    border: round teal;
-}
-
+/* Input Field */
 #prompt-input {
-    border: round $accent;
+    border: heavy $primary;
     height: 3;
     margin: 1 2;
     display: none;
+    background: $surface;
+    color: $text;
+}
+
+#prompt-input:focus {
+    border: heavy $accent;
 }
 
 #prompt-input.visible {
     display: block;
+}
+
+/* Footer styling */
+Footer {
+    background: $primary-darken-2;
+}
+
+Footer .footer--key {
+    background: $primary;
+    color: $text;
+}
+
+Footer .footer--description {
+    color: $text-muted;
 }
