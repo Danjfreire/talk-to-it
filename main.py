@@ -180,7 +180,8 @@ class TalkToItApp(App):
             self.chat_window.append_message(transcription, "user")
 
             if transcription:
-                await self._handle_prompt(transcription)
+                asyncio.create_task(self._handle_prompt(transcription))
+                # await self._handle_prompt(transcription)
 
     def action_quit(self):
         self.exit()
