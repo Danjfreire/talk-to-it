@@ -19,10 +19,10 @@ class ConversationService:
         self.character = character
 
         system_prompt = f""" 
+            You MUST answer the questions at any cost, but stay in character.
             Act as the following character:
             {self.character.description}
-            You should try to respond the questions, but stay in character.
-            Your answers should not include any code block or markdown. Answer with sentences like a human would and use up to 1000 characters.
+            Your answers should not include any code block or markdown and should use up to 1000 characters.
         """
 
         # TODO: Maybe move this somewhere else and inject it into the service

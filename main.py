@@ -10,6 +10,27 @@ from services.conversation_service import ConversationService
 from services.audio_sevice import AudioService
 from tts.tts_client import TTSClient
 
+class RecordingIndicator(Horizontal):
+    def __init__(self):
+        super().__init__()
+        self._animation_task = None
+
+    def compose(self):
+        yield Static("●", id="recording-dot")
+        yield Static("Recording...", id="recording-text")
+    
+    def on_mount(self):
+        self._start_animation()
+    
+    def _start_animation(self):
+        self.styles.opacity = 1.0
+        self.styles.animate("opacity", value=0.0, duration=1, on_complete=self._fade_in)
+    
+    def _fade_in(self):
+        self.styles.opacity = 0.0
+        self.styles.animate("opacity", value=1.0, duration=1, on_complete=self._start_animation)
+
+
 class AiTypingIndicator(Horizontal):
     def __init__(self, character_name: str):
         self.character_name = character_name
@@ -66,7 +87,6 @@ class TalkToItApp(App):
 
     def __init__(self):
         super().__init__()
-        self.repl = None
         self.models_loaded = False
         self.input_visible = False
         self.audio_service: AudioService = None
@@ -148,9 +168,14 @@ class TalkToItApp(App):
         is_recording = self.audio_service.is_recording
 
         if not is_recording:
+            recording_indicator = RecordingIndicator()
+            recording_indicator.id = "recording-indicator"
+
+            self.mount(recording_indicator, after=self.chat_window)
             await self.audio_service.start_recording()
         else:
             transcription = await self.audio_service.stop_recording()
+            self.query_one("#recording-indicator").remove()
             print(f"Transcription: {transcription}")
             self.chat_window.append_message(transcription, "user")
 

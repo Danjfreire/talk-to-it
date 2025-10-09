@@ -38,6 +38,22 @@ AiTypingIndicator #typing-dots {
     width: 4;
 }
 
+RecordingIndicator {
+    width: 100%;
+    padding: 1 2;
+}
+
+RecordingIndicator #recording-text {
+    width: auto;
+    text-style: bold;
+}
+
+RecordingIndicator #recording-dot {
+    width: 2;
+    color: red;
+    text-style: bold;
+}
+
 .message {
     width: auto;
     max-width: 70%;
