@@ -3,6 +3,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Configure logging before importing heavy libraries
+from logging_config import setup_logging
+setup_logging()
+
 from textual.app import App
 from textual.widgets import Header, Footer, LoadingIndicator, Static, Input
 from textual.containers import Vertical, VerticalScroll, Right, Horizontal
