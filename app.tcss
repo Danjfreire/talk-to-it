@@ -100,13 +100,12 @@ RecordingIndicator #recording-dot {
     height: 3;
     margin: 1 2;
     display: none;
-    background: $surface;
     color: $text;
 }
 
-#prompt-input:focus {
-    border: heavy $accent;
-}
+# #prompt-input:focus {
+#     border: heavy $accent;
+# }
 
 #prompt-input.visible {
     display: block;
