@@ -40,6 +40,9 @@ def setup_logging():
     logging.getLogger('transformers').setLevel(logging.ERROR)
     logging.getLogger('datasets').setLevel(logging.WARNING)
     logging.getLogger('langchain').setLevel(logging.WARNING)
+    logging.getLogger('langchain_core').setLevel(logging.WARNING)
+    logging.getLogger('langchain_mcp_adapters').setLevel(logging.WARNING)
+    logging.getLogger('langgraph').setLevel(logging.WARNING)
     logging.getLogger('tensorflow').setLevel(logging.ERROR)
     logging.getLogger('torch').setLevel(logging.WARNING)
     logging.getLogger('torchaudio').setLevel(logging.WARNING)
@@ -49,6 +52,7 @@ def setup_logging():
     logging.getLogger('urllib3').setLevel(logging.WARNING)
     logging.getLogger('pydub').setLevel(logging.WARNING)
     logging.getLogger('pydub.converter').setLevel(logging.WARNING)
+    
     
     # Log the setup
     logging.info(f"Logging configured. Logs will be written to: {log_file}")

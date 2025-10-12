@@ -13,6 +13,7 @@ from textual.containers import Vertical, VerticalScroll, Right, Horizontal
 from services.conversation_service import ConversationService
 from services.audio_sevice import AudioService
 from tts.tts_client import TTSClient
+from tools._init_tools import init_tools 
 
 class RecordingIndicator(Horizontal):
     def __init__(self):
@@ -128,7 +129,8 @@ class TalkToItApp(App):
             await asyncio.sleep(0.5)
 
             models = await init(status_callback=self.set_loading_status)
-            self.conversation_service = ConversationService(llm_model=models['llm_model'], character= models['character'])
+            tools = await init_tools()
+            self.conversation_service = ConversationService(llm_model=models['llm_model'], character= models['character'], tools=tools)
             self.audio_service = AudioService(recorder=models['recorder'], transcriber=models['transcriber'], player=models['player'])
             self.tts_client = models['tts_client']
             self.models_loaded = True 

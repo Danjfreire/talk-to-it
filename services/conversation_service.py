@@ -3,7 +3,8 @@ import time
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chat_models.base import BaseChatModel
 from langgraph.checkpoint.memory import InMemorySaver
-from langchain.agents import create_agent
+from langchain.agents import create_agent 
+from langchain.tools import BaseTool
 from characters.character import Character
 
 from dataclasses import dataclass
@@ -14,7 +15,7 @@ class ResponseFormat:
     response: str
 
 class ConversationService:
-    def __init__(self, llm_model: BaseChatModel, character: Character):
+    def __init__(self, llm_model: BaseChatModel, character: Character, tools: list[BaseTool]):
         self.llm_model = llm_model
         self.character = character
 
@@ -30,18 +31,18 @@ class ConversationService:
             model=llm_model,
             checkpointer=InMemorySaver(),
             system_prompt=system_prompt,
-            response_format=ResponseFormat
+            response_format=ResponseFormat,
+            tools=tools
         )
         self._config = {"configurable": {"thread_id" : 1}}
     
     async def handle_prompt(self, prompt: str) -> str:
         start_time = time.perf_counter()
-        loop = asyncio.get_event_loop()
 
-        res = await loop.run_in_executor(
-            None,
-            lambda: self._agent.invoke({"messages": [{"role": "user", "content": prompt}]}, config=self._config)
-        ) 
+        res = await self._agent.ainvoke(
+            {"messages": [{"role": "user", "content": prompt}]}, 
+            config=self._config
+        )
 
         ai_text = res['structured_response'].response
         end_time = time.perf_counter()

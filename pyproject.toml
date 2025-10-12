@@ -17,4 +17,6 @@ dependencies = [
     "textual-dev>=1.7.0",
     "transformers[torch]>=4.46.3",
     "langchain[google-genai]>=1.0.0a12",
+    "mcp>=1.17.0",
+    "langchain-mcp-adapters>=0.1.11",
 ]
